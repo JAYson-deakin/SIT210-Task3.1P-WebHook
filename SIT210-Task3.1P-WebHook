@@ -1,0 +1,39 @@
+#include <JsonParsergeneratorRK.h>
+#include <Grove_Temperature_And_Humidity_Sensor.h>
+
+#define DELAY_TIME 30000
+#define DHT_PIN D3
+
+DHT dht(DHT_PIN);
+
+double temp;
+double hum;
+
+void parseit(double temp, double humidity)
+{
+
+	JsonWriterStatic<256> jw;
+
+		{
+
+			JsonWriterAutoObject obj(&jw);
+			jw.insertKeyValue("temp", temp);
+			jw.insertKeyValue("hum", hum);
+		}
+		Particle.publish("dht11", jw.GetBuffer(), PRIVATE);
+}
+
+void setup()
+{
+	dht.begin();
+	pinMode(DHT_PIN, INPUT);
+}
+
+void loop()
+{
+
+	temp = dht.getTempCelcius();
+	hum = dht.getHumidity();
+	parseit(temp, hum)
+	delay(DELAY_TIME);
+}
